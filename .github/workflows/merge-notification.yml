@@ -1,0 +1,31 @@
+name: Branch Merge Notification
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  send-email:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send confirmation email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: "GitHub PR Merged: ${{ github.event.pull_request.title }} into main"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: "GitHub Workflow <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            Hello,
+
+            The branch "${{ github.head_ref }}" has been successfully merged into "main".
+
+            - PR Title: ${{ github.event.pull_request.title }}
+            - Merged By: ${{ github.actor }}
+            - Repository: ${{ github.repository }}
